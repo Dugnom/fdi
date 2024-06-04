@@ -1,0 +1,73 @@
+body {
+    font-family: 'Verdana', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fefefe;
+    color: #222;
+}
+
+header {
+    text-align: center;
+    padding: 2rem 0;
+    background-color: #333;
+    color: #eee;
+}
+
+.profile-pic {
+    width: 150px;
+    border-radius: 50%;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 1rem;
+}
+
+nav ul li a {
+    color: #eee;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+main {
+    padding: 2rem;
+}
+
+section {
+    margin: 2rem 0;
+}
+
+.task {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.collapsible {
+    background-color: #444;
+    color: #fff;
+    cursor: pointer;
+    padding: 1rem;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 1.25rem;
+    width: 100%;
+}
+
+.active, .collapsible:hover {
+    background-color: #555;
+}
+
+.content {
+    padding: 0 1rem;
+    display: none;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    border-left: 4px solid #444;
+}
