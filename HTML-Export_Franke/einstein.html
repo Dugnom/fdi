@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Einstein Rätsel — CSS only</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+/* Basislayout */
+body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;padding:20px;background:#fafafa;color:#111}
+h1{margin-top:0}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.house{flex:1 1 180px;border:1px solid #444;padding:8px;border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
+.house h3{margin:4px 0 8px 0}
+input{display:none}
+label{display:block;padding:6px;margin:3px 0;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.9rem}
+input:checked + label{background:#e6f2ff;border-color:#339}
+small{color:#555}
+
+/* Hinweis: diese Lösung nutzt CSS :has(). Nicht alle Browser unterstützen :has(). */
+/* Die Logik: es gibt 5 House-Container (house1..house5), jeweils 5 Kategorien mit 5 Optionen.
+   Jede Constraint wird als :has(...) Bedingung formuliert. Am Ende wird #solution sichtbar,
+   sobald der #houses-Container alle Constraints (als :has(...)-Ketten) erfüllt. */
+
+#solution { display:none; margin-top:20px; padding:14px; border:2px solid #2e8b57; border-radius:8px; background:#f1fff5; }
+
+/* -----------------------------
+   Die Constraints (als :has() Ketten)
+   Jede :has(...) ist eine Bedingung; durch Aneinanderreihen wird ein AND realisiert.
+   Innerhalb einer :has(...) können mehrere alternative Selektoren (OR) stehen, z.B.
+   "es gibt ein Haus i mit (Brite & rot)" wird abgedeckt durch OR über i=1..5.
+   ----------------------------- */
+
+/* Wir bauen einen großen Selector: #houses
+   :has( <Brit in red OR ...> )
+   :has( <Swede with dog OR ...> )
+   ...
+   ~ #solution { display:block } */
+
+#houses
+:has(
+  ( .house#house1:has(#h1-nation-brit):has(#h1-color-red),
+    .house#house2:has(#h2-nation-brit):has(#h2-color-red),
+    .house#house3:has(#h3-nation-brit):has(#h3-color-red),
+    .house#house4:has(#h4-nation-brit):has(#h4-color-red),
+    .house#house5:has(#h5-nation-brit):has(#h5-color-red) )
+)
+:has(
+  ( .house#house1:has(#h1-nation-swede):has(#h1-pet-dog),
+    .house#house2:has(#h2-nation-swede):has(#h2-pet-dog),
+    .house#house3:has(#h3-nation-swede):has(#h3-pet-dog),
+    .house#house4:has(#h4-nation-swede):has(#h4-pet-dog),
+    .house#house5:has(#h5-nation-swede):has(#h5-pet-dog) )
+)
+:has(
+  ( .house#house1:has(#h1-nation-dane):has(#h1-drink-tea),
+    .house#house2:has(#h2-nation-dane):has(#h2-drink-tea),
+    .house#house3:has(#h3-nation-dane):has(#h3-drink-tea),
+    .house#house4:has(#h4-nation-dane):has(#h4-drink-tea),
+    .house#house5:has(#h5-nation-dane):has(#h5-drink-tea) )
+)
+:has(
+  /* grünes Haus steht links vom weißen (also i und i+1) */
+  ( .house#house1:has(#h1-color-green) + .house#house2:has(#h2-color-white),
+    .house#house2:has(#h2-color-green) + .house#house3:has(#h3-color-white),
+    .house#house3:has(#h3-color-green) + .house#house4:has(#h4-color-white),
+    .house#house4:has(#h4-color-green) + .house#house5:has(#h5-color-white) )
+)
+:has(
+  ( .house#house1:has(#h1-color-green):has(#h1-drink-coffee),
+    .house#house2:has(#h2-color-green):has(#h2-drink-coffee),
+    .house#house3:has(#h3-color-green):has(#h3-drink-coffee),
+    .house#house4:has(#h4-color-green):has(#h4-drink-coffee),
+    .house#house5:has(#h5-color-green):has(#h5-drink-coffee) )
+)
+:has(
+  ( .house#house1:has(#h1-hobby-poker):has(#h1-pet-bird),
+    .house#house2:has(#h2-hobby-poker):has(#h2-pet-bird),
+    .house#house3:has(#h3-hobby-poker):has(#h3-pet-bird),
+    .house#house4:has(#h4-hobby-poker):has(#h4-pet-bird),
+    .house#house5:has(#h5-hobby-poker):has(#h5-pet-bird) )
+)
+:has(
+  ( .house#house1:has(#h1-color-yellow):has(#h1-hobby-dart),
+    .house#house2:has(#h2-color-yellow):has(#h2-hobby-dart),
+    .house#house3:has(#h3-color-yellow):has(#h3-hobby-dart),
+    .house#house4:has(#h4-color-yellow):has(#h4-hobby-dart),
+    .house#house5:has(#h5-color-yellow):has(#h5-hobby-dart) )
+)
+:has(
+  /* mittleres Haus (Haus 3) trinkt Milch */
+  .house#house3:has(#h3-drink-milk)
+)
+:has(
+  /* Norweger im ersten Haus */
+  .house#house1:has(#h1-nation-norwegian)
+)
+:has(
+  /* Billardspieler wohnt neben dem, der eine Katze hält.
+     Dafür muss es ein benachbartes Paar (i,i+1) geben, wobei eines Billiard hat und das andere die Katze. */
+  ( .house#house1:has(#h1-hobby-billiard) + .house#house2:has(#h2-pet-cat),
+    .house#house2:has(#h2-hobby-billiard) + .house#house3:has(#h3-pet-cat),
+    .house#house3:has(#h3-hobby-billiard) + .house#house4:has(#h4-pet-cat),
+    .house#house4:has(#h4-hobby-billiard) + .house#house5:has(#h5-pet-cat),
+    .house#house1:has(#h1-pet-cat) + .house#house2:has(#h2-hobby-billiard),
+    .house#house2:has(#h2-pet-cat) + .house#house3:has(#h3-hobby-billiard),
+    .house#house3:has(#h3-pet-cat) + .house#house4:has(#h4-hobby-billiard),
+    .house#house4:has(#h4-pet-cat) + .house#house5:has(#h5-hobby-billiard) )
+)
+:has(
+  /* Mann mit Pferd wohnt neben dem, der Dart spielt */
+  ( .house#house1:has(#h1-pet-horse) + .house#house2:has(#h2-hobby-dart),
+    .house#house2:has(#h2-pet-horse) + .house#house3:has(#h3-hobby-dart),
+    .house#house3:has(#h3-pet-horse) + .house#house4:has(#h4-hobby-dart),
+    .house#house4:has(#h4-pet-horse) + .house#house5:has(#h5-hobby-dart),
+    .house#house1:has(#h1-hobby-dart) + .house#house2:has(#h2-pet-horse),
+    .house#house2:has(#h2-hobby-dart) + .house#house3:has(#h3-pet-horse),
+    .house#house3:has(#h3-hobby-dart) + .house#house4:has(#h4-pet-horse),
+    .house#house4:has(#h4-hobby-dart) + .house#house5:has(#h5-pet-horse) )
+)
+:has(
+  ( .house#house1:has(#h1-hobby-football):has(#h1-drink-beer),
+    .house#house2:has(#h2-hobby-football):has(#h2-drink-beer),
+    .house#house3:has(#h3-hobby-football):has(#h3-drink-beer),
+    .house#house4:has(#h4-hobby-football):has(#h4-drink-beer),
+    .house#house5:has(#h5-hobby-football):has(#h5-drink-beer) )
+)
+:has(
+  ( .house#house1:has(#h1-nation-german):has(#h1-hobby-chess),
+    .house#house2:has(#h2-nation-german):has(#h2-hobby-chess),
+    .house#house3:has(#h3-nation-german):has(#h3-hobby-chess),
+    .house#house4:has(#h4-nation-german):has(#h4-hobby-chess),
+    .house#house5:has(#h5-nation-german):has(#h5-hobby-chess) )
+)
+:has(
+  /* Norweger wohnt neben dem blauen Haus */
+  ( .house#house1:has(#h1-nation-norwegian) + .house#house2:has(#h2-color-blue),
+    .house#house2:has(#h2-nation-norwegian) + .house#house3:has(#h3-color-blue),
+    .house#house3:has(#h3-nation-norwegian) + .house#house4:has(#h4-color-blue),
+    .house#house4:has(#h4-nation-norwegian) + .house#house5:has(#h5-color-blue),
+    .house#house1:has(#h1-color-blue) + .house#house2:has(#h2-nation-norwegian),
+    .house#house2:has(#h2-color-blue) + .house#house3:has(#h3-nation-norwegian),
+    .house#house3:has(#h3-color-blue) + .house#house4:has(#h4-nation-norwegian),
+    .house#house4:has(#h4-color-blue) + .house#house5:has(#h5-nation-norwegian) )
+)
+:has(
+  /* Billardspieler hat einen Nachbarn, der Wasser trinkt */
+  ( .house#house1:has(#h1-hobby-billiard) + .house#house2:has(#h2-drink-water),
+    .house#house2:has(#h2-hobby-billiard) + .house#house3:has(#h3-drink-water),
+    .house#house3:has(#h3-hobby-billiard) + .house#house4:has(#h4-drink-water),
+    .house#house4:has(#h4-hobby-billiard) + .house#house5:has(#h5-drink-water),
+    .house#house1:has(#h1-drink-water) + .house#house2:has(#h2-hobby-billiard),
+    .house#house2:has(#h2-drink-water) + .house#house3:has(#h3-hobby-billiard),
+    .house#house3:has(#h3-drink-water) + .house#house4:has(#h4-hobby-billiard),
+    .house#house4:has(#h4-drink-water) + .house#house5:has(#h5-hobby-billiard) )
+)
+ ~ /* wenn alle oben :has(...) erfüllt sind */ 
+#solution { display:block; }
+<!-- HTML: Houses + Inputs (125 Radiobuttons) --> </style> </head> <body> <h1>Einstein-Rätsel — reine CSS-Lösung (vollständig)</h1> <p>Dies ist eine komplett statische Seite ohne JavaScript. Wähle für jedes Haus die Optionen (Farbe, Nationalität, Getränk, Haustier, Hobby). Wenn <em>alle</em> Hinweise zeitgleich erfüllt sind, erscheint die Lösung. <small>Hinweis: Browser muss <code>:has()</code> unterstützen.</small></p> <div id="houses" class="row"> <!-- Haus 1 --> <div class="house" id="house1"> <h3>Haus 1</h3> <!-- Farben --> <input type="radio" name="h1-color" id="h1-color-red"><label for="h1-color-red">rot</label> <input type="radio" name="h1-color" id="h1-color-green"><label for="h1-color-green">grün</label> <input type="radio" name="h1-color" id="h1-color-white"><label for="h1-color-white">weiß</label> <input type="radio" name="h1-color" id="h1-color-yellow"><label for="h1-color-yellow">gelb</label> <input type="radio" name="h1-color" id="h1-color-blue"><label for="h1-color-blue">blau</label>
+<!-- Nationalitäten -->
+<input type="radio" name="h1-nation" id="h1-nation-brit"><label for="h1-nation-brit">Brite</label>
+<input type="radio" name="h1-nation" id="h1-nation-swede"><label for="h1-nation-swede">Schwede</label>
+<input type="radio" name="h1-nation" id="h1-nation-dane"><label for="h1-nation-dane">Däne</label>
+<input type="radio" name="h1-nation" id="h1-nation-norwegian"><label for="h1-nation-norwegian">Norweger</label>
+<input type="radio" name="h1-nation" id="h1-nation-german"><label for="h1-nation-german">Deutscher</label>
+
+<!-- Getränke -->
+<input type="radio" name="h1-drink" id="h1-drink-tea"><label for="h1-drink-tea">Tee</label>
+<input type="radio" name="h1-drink" id="h1-drink-coffee"><label for="h1-drink-coffee">Kaffee</label>
+<input type="radio" name="h1-drink" id="h1-drink-milk"><label for="h1-drink-milk">Milch</label>
+<input type="radio" name="h1-drink" id="h1-drink-beer"><label for="h1-drink-beer">Bier</label>
+<input type="radio" name="h1-drink" id="h1-drink-water"><label for="h1-drink-water">Wasser</label>
+
+<!-- Haustiere -->
+<input type="radio" name="h1-pet" id="h1-pet-dog"><label for="h1-pet-dog">Hund</label>
+<input type="radio" name="h1-pet" id="h1-pet-bird"><label for="h1-pet-bird">Vogel</label>
+<input type="radio" name="h1-pet" id="h1-pet-cat"><label for="h1-pet-cat">Katze</label>
+<input type="radio" name="h1-pet" id="h1-pet-horse"><label for="h1-pet-horse">Pferd</label>
+<input type="radio" name="h1-pet" id="h1-pet-fish"><label for="h1-pet-fish">Fisch</label>
+
+<!-- Hobbys/Spiele -->
+<input type="radio" name="h1-hobby" id="h1-hobby-poker"><label for="h1-hobby-poker">Poker</label>
+<input type="radio" name="h1-hobby" id="h1-hobby-dart"><label for="h1-hobby-dart">Dart</label>
+<input type="radio" name="h1-hobby" id="h1-hobby-billiard"><label for="h1-hobby-billiard">Billard</label>
+<input type="radio" name="h1-hobby" id="h1-hobby-football"><label for="h1-hobby-football">Fußball</label>
+<input type="radio" name="h1-hobby" id="h1-hobby-chess"><label for="h1-hobby-chess">Schach</label>
+
+</div> <!-- Haus 2 --> <div class="house" id="house2"> <h3>Haus 2</h3> <input type="radio" name="h2-color" id="h2-color-red"><label for="h2-color-red">rot</label> <input type="radio" name="h2-color" id="h2-color-green"><label for="h2-color-green">grün</label> <input type="radio" name="h2-color" id="h2-color-white"><label for="h2-color-white">weiß</label> <input type="radio" name="h2-color" id="h2-color-yellow"><label for="h2-color-yellow">gelb</label> <input type="radio" name="h2-color" id="h2-color-blue"><label for="h2-color-blue">blau</label>
+
+<input type="radio" name="h2-nation" id="h2-nation-brit"><label for="h2-nation-brit">Brite</label>
+<input type="radio" name="h2-nation" id="h2-nation-swede"><label for="h2-nation-swede">Schwede</label>
+<input type="radio" name="h2-nation" id="h2-nation-dane"><label for="h2-nation-dane">Däne</label>
+<input type="radio" name="h2-nation" id="h2-nation-norwegian"><label for="h2-nation-norwegian">Norweger</label>
+<input type="radio" name="h2-nation" id="h2-nation-german"><label for="h2-nation-german">Deutscher</label>
+
+<input type="radio" name="h2-drink" id="h2-drink-tea"><label for="h2-drink-tea">Tee</label>
+<input type="radio" name="h2-drink" id="h2-drink-coffee"><label for="h2-drink-coffee">Kaffee</label>
+<input type="radio" name="h2-drink" id="h2-drink-milk"><label for="h2-drink-milk">Milch</label>
+<input type="radio" name="h2-drink" id="h2-drink-beer"><label for="h2-drink-beer">Bier</label>
+<input type="radio" name="h2-drink" id="h2-drink-water"><label for="h2-drink-water">Wasser</label>
+
+<input type="radio" name="h2-pet" id="h2-pet-dog"><label for="h2-pet-dog">Hund</label>
+<input type="radio" name="h2-pet" id="h2-pet-bird"><label for="h2-pet-bird">Vogel</label>
+<input type="radio" name="h2-pet" id="h2-pet-cat"><label for="h2-pet-cat">Katze</label>
+<input type="radio" name="h2-pet" id="h2-pet-horse"><label for="h2-pet-horse">Pferd</label>
+<input type="radio" name="h2-pet" id="h2-pet-fish"><label for="h2-pet-fish">Fisch</label>
+
+<input type="radio" name="h2-hobby" id="h2-hobby-poker"><label for="h2-hobby-poker">Poker</label>
+<input type="radio" name="h2-hobby" id="h2-hobby-dart"><label for="h2-hobby-dart">Dart</label>
+<input type="radio" name="h2-hobby" id="h2-hobby-billiard"><label for="h2-hobby-billiard">Billard</label>
+<input type="radio" name="h2-hobby" id="h2-hobby-football"><label for="h2-hobby-football">Fußball</label>
+<input type="radio" name="h2-hobby" id="h2-hobby-chess"><label for="h2-hobby-chess">Schach</label>
+
+</div> <!-- Haus 3 --> <div class="house" id="house3"> <h3>Haus 3</h3> <input type="radio" name="h3-color" id="h3-color-red"><label for="h3-color-red">rot</label> <input type="radio" name="h3-color" id="h3-color-green"><label for="h3-color-green">grün</label> <input type="radio" name="h3-color" id="h3-color-white"><label for="h3-color-white">weiß</label> <input type="radio" name="h3-color" id="h3-color-yellow"><label for="h3-color-yellow">gelb</label> <input type="radio" name="h3-color" id="h3-color-blue"><label for="h3-color-blue">blau</label>
+
+<input type="radio" name="h3-nation" id="h3-nation-brit"><label for="h3-nation-brit">Brite</label>
+<input type="radio" name="h3-nation" id="h3-nation-swede"><label for="h3-nation-swede">Schwede</label>
+<input type="radio" name="h3-nation" id="h3-nation-dane"><label for="h3-nation-dane">Däne</label>
+<input type="radio" name="h3-nation" id="h3-nation-norwegian"><label for="h3-nation-norwegian">Norweger</label>
+<input type="radio" name="h3-nation" id="h3-nation-german"><label for="h3-nation-german">Deutscher</label>
+
+<input type="radio" name="h3-drink" id="h3-drink-tea"><label for="h3-drink-tea">Tee</label>
+<input type="radio" name="h3-drink" id="h3-drink-coffee"><label for="h3-drink-coffee">Kaffee</label>
+<input type="radio" name="h3-drink" id="h3-drink-milk"><label for="h3-drink-milk">Milch</label>
+<input type="radio" name="h3-drink" id="h3-drink-beer"><label for="h3-drink-beer">Bier</label>
+<input type="radio" name="h3-drink" id="h3-drink-water"><label for="h3-drink-water">Wasser</label>
+
+<input type="radio" name="h3-pet" id="h3-pet-dog"><label for="h3-pet-dog">Hund</label>
+<input type="radio" name="h3-pet" id="h3-pet-bird"><label for="h3-pet-bird">Vogel</label>
+<input type="radio" name="h3-pet" id="h3-pet-cat"><label for="h3-pet-cat">Katze</label>
+<input type="radio" name="h3-pet" id="h3-pet-horse"><label for="h3-pet-horse">Pferd</label>
+<input type="radio" name="h3-pet" id="h3-pet-fish"><label for="h3-pet-fish">Fisch</label>
+
+<input type="radio" name="h3-hobby" id="h3-hobby-poker"><label for="h3-hobby-poker">Poker</label>
+<input type="radio" name="h3-hobby" id="h3-hobby-dart"><label for="h3-hobby-dart">Dart</label>
+<input type="radio" name="h3-hobby" id="h3-hobby-billiard"><label for="h3-hobby-billiard">Billard</label>
+<input type="radio" name="h3-hobby" id="h3-hobby-football"><label for="h3-hobby-football">Fußball</label>
+<input type="radio" name="h3-hobby" id="h3-hobby-chess"><label for="h3-hobby-chess">Schach</label>
+
+</div> <!-- Haus 4 --> <div class="house" id="house4"> <h3>Haus 4</h3> <input type="radio" name="h4-color" id="h4-color-red"><label for="h4-color-red">rot</label> <input type="radio" name="h4-color" id="h4-color-green"><label for="h4-color-green">grün</label> <input type="radio" name="h4-color" id="h4-color-white"><label for="h4-color-white">weiß</label> <input type="radio" name="h4-color" id="h4-color-yellow"><label for="h4-color-yellow">gelb</label> <input type="radio" name="h4-color" id="h4-color-blue"><label for="h4-color-blue">blau</label>
+
+<input type="radio" name="h4-nation" id="h4-nation-brit"><label for="h4-nation-brit">Brite</label>
+<input type="radio" name="h4-nation" id="h4-nation-swede"><label for="h4-nation-swede">Schwede</label>
+<input type="radio" name="h4-nation" id="h4-nation-dane"><label for="h4-nation-dane">Däne</label>
+<input type="radio" name="h4-nation" id="h4-nation-norwegian"><label for="h4-nation-norwegian">Norweger</label>
+<input type="radio" name="h4-nation" id="h4-nation-german"><label for="h4-nation-german">Deutscher</label>
+
+<input type="radio" name="h4-drink" id="h4-drink-tea"><label for="h4-drink-tea">Tee</label>
+<input type="radio" name="h4-drink" id="h4-drink-coffee"><label for="h4-drink-coffee">Kaffee</label>
+<input type="radio" name="h4-drink" id="h4-drink-milk"><label for="h4-drink-milk">Milch</label>
+<input type="radio" name="h4-drink" id="h4-drink-beer"><label for="h4-drink-beer">Bier</label>
+<input type="radio" name="h4-drink" id="h4-drink-water"><label for="h4-drink-water">Wasser</label>
+
+<input type="radio" name="h4-pet" id="h4-pet-dog"><label for="h4-pet-dog">Hund</label>
+<input type="radio" name="h4-pet" id="h4-pet-bird"><label for="h4-pet-bird">Vogel</label>
+<input type="radio" name="h4-pet" id="h4-pet-cat"><label for="h4-pet-cat">Katze</label>
+<input type="radio" name="h4-pet" id="h4-pet-horse"><label for="h4-pet-horse">Pferd</label>
+<input type="radio" name="h4-pet" id="h4-pet-fish"><label for="h4-pet-fish">Fisch</label>
+
+<input type="radio" name="h4-hobby" id="h4-hobby-poker"><label for="h4-hobby-poker">Poker</label>
+<input type="radio" name="h4-hobby" id="h4-hobby-dart"><label for="h4-hobby-dart">Dart</label>
+<input type="radio" name="h4-hobby" id="h4-hobby-billiard"><label for="h4-hobby-billiard">Billard</label>
+<input type="radio" name="h4-hobby" id="h4-hobby-football"><label for="h4-hobby-football">Fußball</label>
+<input type="radio" name="h4-hobby" id="h4-hobby-chess"><label for="h4-hobby-chess">Schach</label>
+
+</div> <!-- Haus 5 --> <div class="house" id="house5"> <h3>Haus 5</h3> <input type="radio" name="h5-color" id="h5-color-red"><label for="h5-color-red">rot</label> <input type="radio" name="h5-color" id="h5-color-green"><label for="h5-color-green">grün</label> <input type="radio" name="h5-color" id="h5-color-white"><label for="h5-color-white">weiß</label> <input type="radio" name="h5-color" id="h5-color-yellow"><label for="h5-color-yellow">gelb</label> <input type="radio" name="h5-color" id="h5-color-blue"><label for="h5-color-blue">blau</label>
+
+<input type="radio" name="h5-nation" id="h5-nation-brit"><label for="h5-nation-brit">Brite</label>
+<input type="radio" name="h5-nation" id="h5-nation-swede"><label for="h5-nation-swede">Schwede</label>
+<input type="radio" name="h5-nation" id="h5-nation-dane"><label for="h5-nation-dane">Däne</label>
+<input type="radio" name="h5-nation" id="h5-nation-norwegian"><label for="h5-nation-norwegian">Norweger</label>
+<input type="radio" name="h5-nation" id="h5-nation-german"><label for="h5-nation-german">Deutscher</label>
+
+<input type="radio" name="h5-drink" id="h5-drink-tea"><label for="h5-drink-tea">Tee</label>
+<input type="radio" name="h5-drink" id="h5-drink-coffee"><label for="h5-drink-coffee">Kaffee</label>
+<input type="radio" name="h5-drink" id="h5-drink-milk"><label for="h5-drink-milk">Milch</label>
+<input type="radio" name="h5-drink" id="h5-drink-beer"><label for="h5-drink-beer">Bier</label>
+<input type="radio" name="h5-drink" id="h5-drink-water"><label for="h5-drink-water">Wasser</label>
+
+<input type="radio" name="h5-pet" id="h5-pet-dog"><label for="h5-pet-dog">Hund</label>
+<input type="radio" name="h5-pet" id="h5-pet-bird"><label for="h5-pet-bird">Vogel</label>
+<input type="radio" name="h5-pet" id="h5-pet-cat"><label for="h5-pet-cat">Katze</label>
+<input type="radio" name="h5-pet" id="h5-pet-horse"><label for="h5-pet-horse">Pferd</label>
+<input type="radio" name="h5-pet" id="h5-pet-fish"><label for="h5-pet-fish">Fisch</label>
+
+<input type="radio" name="h5-hobby" id="h5-hobby-poker"><label for="h5-hobby-poker">Poker</label>
+<input type="radio" name="h5-hobby" id="h5-hobby-dart"><label for="h5-hobby-dart">Dart</label>
+<input type="radio" name="h5-hobby" id="h5-hobby-billiard"><label for="h5-hobby-billiard">Billard</label>
+<input type="radio" name="h5-hobby" id="h5-hobby-football"><label for="h5-hobby-football">Fußball</label>
+<input type="radio" name="h5-hobby" id="h5-hobby-chess"><label for="h5-hobby-chess">Schach</label>
+
+</div> </div> <!-- end houses --> <div id="solution"> <h2>✅ Lösung (wenn alle Hinweise erfüllt sind)</h2> <p><strong>Der Deutsche besitzt den Fisch.</strong></p> <p class="small">Hinweis: Diese Seite prüft die Constraints als Boolesche Bedingungen in CSS (mit <code>:has()</code>).</p> </div> <p class="small" style="margin-top:18px">Tipp: Du kannst die Lösung selbst nachvollziehen: setze z. B. Norweger im Haus 1, Milch im Haus 3 usw. — wenn du alle Hinweise korrekt erfüllst (nicht einzelne, sondern <em>alle</em>), erscheint die Box oben.</p> </body> </html>
